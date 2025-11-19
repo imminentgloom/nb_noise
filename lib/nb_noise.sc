@@ -13,12 +13,13 @@ NB_nb_noise {
 			\amp, 0.8,
 			\sendA, 0,
 			\sendB, 0,
-         \shape, 0.5,
+         \timbre, 0.5,
          \noise, 0.0,
          \bias, 1.0,
-         \attack, 1.0,
-         \sustain, 1.0,
-         \release, 3.0
+         \loop, 0.0,
+         \shape, 0.5,
+         \max_attack, 10,
+         \max_release, 10
 		]);
 
 		StartUp.add {
@@ -30,8 +31,7 @@ NB_nb_noise {
 				synthGroup = Group.new(s);
 				synthVoices = Array.fill(numVoices, { Group.new(synthGroup) }); // each voice will have it's own node
 
-				SynthDef(\nb_noise,{
-
+				SynthDef(\nb_noise_poly,{
 					arg
                   out = 0,
                   sendABus = 0,
@@ -41,37 +41,43 @@ NB_nb_noise {
                   sendB = 0,
                   amp = 0.8,
 
-                  freq = 100.0,
-                  shape = 0.5,
+                  timbre = 0.5,
                   noise = 0.0,
                   bias = 1.0,
-                  vel = 1.0,
+                  freq = 100.0,
 
-                  attack = 1.0,
-                  decay = 0.0,
-                  sustain = 1.0,
-                  release = 3.0;
-		
+                  loop = 0.0,
+                  shape = 0.0,
+                  max_attack = 10,
+                  max_release = 10,
+                  vel = 1.0;
                var
-                  hz, pulsewidth, sine, saw, square, waveform, threshold, max, env, lpg, snd;
+                  hz, pulsewidth, sine, saw, square, waveform, threshold, max, attack, release, curve, asr, ararar, env, lpg, snd;
 
                hz = WhiteNoise.ar(noise) * freq + freq;
                hz = hz.clip(0, SampleRate.ir * 0.5);
 
-               pulsewidth = LinSelectX.kr(shape * 2, [0, 0.5, 1]);
+               pulsewidth = LinSelectX.kr(timbre * 2, [0, 0.5, 1]);
 
                sine = SinOsc.ar(hz);
                saw = VarSaw.ar(hz, 0, pulsewidth, 0.61);
                square = Pulse.ar(hz, pulsewidth, 0.667);
 
-               waveform = SelectX.ar(shape * 2, [saw, sine, square]);
+               waveform = SelectX.ar(timbre * 2, [saw, sine, square]);
                waveform = SelectX.ar(noise * 2, [waveform, waveform * PinkNoise.ar(noise * 3.5, 1), PinkNoise.ar(3.5)]);
                waveform = waveform.clip(-1, 1);
 
                threshold = -1 * (bias * 2 - 1);
                max = LeakDC.ar((waveform > threshold * waveform) + (waveform <= threshold * threshold));
 
-               env = EnvGen.kr(Env.asr(attack, sustain, release), gate, doneAction: 2);
+               attack = LinSelectX.kr(shape * 3, [0.01, 0.01, max_attack, max_attack]);
+               release = LinSelectX.kr(shape * 3, [0.01, max_release, max_release, 0.01]);
+               curve = LinSelectX.kr(shape * 3, [-4, -1, 0, 0]);
+
+               asr = EnvGen.kr(Env.asr(attack, 1, release, curve: curve), gate, doneAction: 2);
+               ararar = EnvGen.kr(Env.new([0, 1, 0, 1, 0], [attack, release, attack, release], releaseNode: 3, loopNode: 1, curve: curve), gate, doneAction: 2);
+               env = LinSelectX.kr(loop.lag(attack), [asr, ararar]);
+
                lpg = LPF.ar(max, env.linexp(0, 1, 200, 20000), env * vel * amp);
 
 					snd = Pan2.ar(lpg).tanh * 0.5;
@@ -86,7 +92,7 @@ NB_nb_noise {
 					var freq = msg[2].asFloat;
 					var vel = msg[3].asFloat;
 					synthVoices[i].set(\gate, -1.05); // force release if playing
-					Synth.new(\nb_noise,
+					Synth.new(\nb_noise_poly,
 						// send arguments and key, value pairs...
 						[
 							\freq, freq,
