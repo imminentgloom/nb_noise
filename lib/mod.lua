@@ -20,7 +20,7 @@
    end
 
    local function add_nb_noise_params()
-      params:add_group("nb_noise_group", "nb_noise", 10)
+      params:add_group("nb_noise_group", "nb_noise", 13)
       params:hide("nb_noise_group")
    
       params:add_separator("nb_noise_levels", "levels")
@@ -28,8 +28,8 @@
       params:set_action("nb_noise_amp", function(val) set_param('amp', val) end) -- key corresponds to the arg of your synthdef
    
       params:add_separator("nb_noise_sound", "sound")
-      params:add_control("nb_noise_shape", "shape", controlspec.new(0, 1, "lin", 0.001, 0.5))
-      params:set_action("nb_noise_shape", function(val) set_param('shape', val) end)
+      params:add_control("nb_noise_timbre", "timbre", controlspec.new(0, 1, "lin", 0.001, 0.5))
+      params:set_action("nb_noise_timbre", function(val) set_param('timbre', val) end)
       
       params:add_control("nb_noise_noise", "noise", controlspec.new(0, 1, "lin", 0.001, 0.0))
       params:set_action("nb_noise_noise", function(val) set_param('noise', val) end)
@@ -38,15 +38,18 @@
       params:set_action("nb_noise_bias", function(val) set_param('bias', val) end)
 
       params:add_separator("nb_noise_envelope", "envelope")
-      params:add_control("nb_noise_attack", "attack", controlspec.new(0.001, 10, "exp", 0.001, 1.0, "s"))
-      params:set_action("nb_noise_attack", function(val) set_param('attack', val) end)
+      params:add_control("nb_noise_shape", "shape", controlspec.new(0, 1, "lin", 0.001, 0.5))
+      params:set_action("nb_noise_shape", function(val) set_param('shape', val) end)
+      
+      params:add_control("nb_noise_loop", "loop", controlspec.new(0, 1, "lin", 1, 0))
+      params:set_action("nb_noise_loop", function(val) set_param('loop', val) end)
+      
+      params:add_control("nb_noise_max_attack", "max attack", controlspec.new(0.001, 10, "exp", 0.001, 1.0, "s"))
+      params:set_action("nb_noise_max_attack", function(val) set_param('max_attack', val) end)
 
-      params:add_control("nb_noise_sustain", "sustain", controlspec.new(0, 1, "lin", 0.001, 1.0))
-      params:set_action("nb_noise_sustain", function(val) set_param('sustain', val) end)
-
-      params:add_control("nb_noise_release", "release", controlspec.new(0.001, 10, "exp", 0.001, 3.0, "s"))
-      params:set_action("nb_noise_release", function(val) set_param('release', val) end)
-
+      params:add_control("nb_noise_max_release", "max release", controlspec.new(0.001, 10, "exp", 0.001, 3.0, "s"))
+      params:set_action("nb_noise_max_release", function(val) set_param('max_release', val) end)
+      
       -- if you want to use the fx mod environment, keep these.
       params:add_control("nb_noise_send_a", "send a", controlspec.new(0, 1, "lin", 0, 0), function(param) return round_form(param:get() * 100, 1, "%") end)
       params:set_action("nb_noise_send_a", function(val) set_param('sendA', val) end)
