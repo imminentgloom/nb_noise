@@ -38,8 +38,8 @@
       params:set_action("nb_noise_bias", function(val) set_param('bias', val) end)
 
       params:add_separator("nb_noise_envelope", "envelope")
-      params:add_control("nb_noise_shape", "shape", controlspec.new(0, 1, "lin", 0.001, 0.5))
-      params:set_action("nb_noise_shape", function(val) set_param('shape', val) end)
+      params:add_control("nb_noise_shape", "shape", controlspec.new(0.1, 1.1, "exp", 0.001, 0.5))
+      params:set_action("nb_noise_shape", function(val) set_param('shape', val - 0.1) end)
       
       params:add_control("nb_noise_loop", "loop", controlspec.new(0, 1, "lin", 1, 0))
       params:set_action("nb_noise_loop", function(val) set_param('loop', val) end)
