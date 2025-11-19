@@ -38,16 +38,16 @@
       params:set_action("nb_noise_bias", function(val) set_param('bias', val) end)
 
       params:add_separator("nb_noise_envelope", "envelope")
-      params:add_control("nb_noise_shape", "shape", controlspec.new(0.1, 1.1, "exp", 0.001, 0.5))
-      params:set_action("nb_noise_shape", function(val) set_param('shape', val - 0.1) end)
+      params:add_control("nb_noise_shape", "shape", controlspec.new(0.001, 1, "exp", 0.001, 0.5))
+      params:set_action("nb_noise_shape", function(val) set_param('shape', val) end)
       
-      params:add_control("nb_noise_loop", "loop", controlspec.new(0, 1, "lin", 1, 0))
+      params:add_control("nb_noise_loop", "loop", controlspec.new(0, 1, "lin", 1, 0, "", 1))
       params:set_action("nb_noise_loop", function(val) set_param('loop', val) end)
       
-      params:add_control("nb_noise_max_attack", "max attack", controlspec.new(0.001, 10, "exp", 0.001, 1.0, "s"))
+      params:add_control("nb_noise_max_attack", "max attack", controlspec.new(0.001, 10, "exp", 0.001, 10.0, "s"))
       params:set_action("nb_noise_max_attack", function(val) set_param('max_attack', val) end)
 
-      params:add_control("nb_noise_max_release", "max release", controlspec.new(0.001, 10, "exp", 0.001, 3.0, "s"))
+      params:add_control("nb_noise_max_release", "max release", controlspec.new(0.001, 10, "exp", 0.001, 10.0, "s"))
       params:set_action("nb_noise_max_release", function(val) set_param('max_release', val) end)
       
       -- if you want to use the fx mod environment, keep these.
@@ -56,7 +56,6 @@
       
       params:add_control("nb_noise_send_b", "send b", controlspec.new(0, 1, "lin", 0, 0), function(param) return round_form(param:get() * 100, 1, "%") end)
       params:set_action("nb_noise_send_b", function(val) set_param('sendB', val) end)
-
    end
 
    function add_nb_noise_player()
